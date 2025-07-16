@@ -1,36 +1,22 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TelegramUser } from '@/types/telegram';
-import { User } from 'lucide-react';
+import { User, ChevronDown, Plus } from 'lucide-react';
 
 interface UserProfileProps {
   user: TelegramUser | null;
   size?: 'sm' | 'md' | 'lg';
-  showName?: boolean;
   className?: string;
+  onCreateEvent?: () => void;
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ 
   user, 
-  size = 'md', 
-  showName = true,
-  className = '' 
+  size = 'md',
+  className = '',
+  onCreateEvent
 }) => {
-  if (!user) {
-    return (
-      <div className={`flex items-center space-x-2 ${className}`}>
-        <Avatar className={size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-12 w-12' : 'h-10 w-10'}>
-          <AvatarFallback>
-            <User className="h-4 w-4" />
-          </AvatarFallback>
-        </Avatar>
-        {showName && (
-          <span className="text-sm text-muted-foreground">Гость</span>
-        )}
-      </div>
-    );
-  }
-
   const getInitials = (firstName: string, lastName?: string) => {
     const firstInitial = firstName?.charAt(0)?.toUpperCase() || '';
     const lastInitial = lastName?.charAt(0)?.toUpperCase() || '';
@@ -38,6 +24,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   };
 
   const getDisplayName = () => {
+    if (!user) return 'Гость';
     const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ');
     return fullName || user.username || 'Пользователь';
   };
@@ -48,33 +35,50 @@ const UserProfile: React.FC<UserProfileProps> = ({
     lg: 'h-12 w-12'
   };
 
-  const textSizeClass = {
-    sm: 'text-sm',
-    md: 'text-sm',
-    lg: 'text-base'
-  };
-
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
-      <Avatar className={avatarSizeClass[size]}>
-        {user.photo_url && (
-          <AvatarImage 
-            src={user.photo_url} 
-            alt={getDisplayName()}
-            className="object-cover"
-          />
-        )}
-        <AvatarFallback className="bg-primary/10 text-primary font-medium">
-          {getInitials(user.first_name, user.last_name)}
-        </AvatarFallback>
-      </Avatar>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className={`flex items-center space-x-1 rounded-full hover:opacity-80 transition-opacity ${className}`}>
+          <Avatar className={avatarSizeClass[size]}>
+            {user?.photo_url ? (
+              <AvatarImage 
+                src={user.photo_url} 
+                alt={getDisplayName()}
+                className="object-cover"
+              />
+            ) : null}
+            <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              {user ? getInitials(user.first_name, user.last_name) : <User className="h-4 w-4" />}
+            </AvatarFallback>
+          </Avatar>
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </DropdownMenuTrigger>
       
-      {showName && (
-        <span className={`font-medium text-foreground ${textSizeClass[size]}`}>
-          {getDisplayName()}
-        </span>
-      )}
-    </div>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {getDisplayName()}
+            </p>
+            {user?.username && (
+              <p className="text-xs leading-none text-muted-foreground">
+                @{user.username}
+              </p>
+            )}
+          </div>
+        </DropdownMenuLabel>
+        
+        <DropdownMenuSeparator />
+        
+        {user && onCreateEvent && (
+          <DropdownMenuItem onClick={onCreateEvent}>
+            <Plus className="mr-2 h-4 w-4" />
+            <span>Создать мероприятие</span>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

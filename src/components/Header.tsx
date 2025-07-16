@@ -5,9 +5,10 @@ import { useTelegram } from '@/hooks/useTelegram';
 
 interface HeaderProps {
   className?: string;
+  onCreateEvent?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ className = '' }) => {
+const Header: React.FC<HeaderProps> = ({ className = '', onCreateEvent }) => {
   const { user } = useTelegram();
 
   return (
@@ -23,8 +24,8 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
           <UserProfile 
             user={user} 
             size="md" 
-            showName={true}
-            className="cursor-pointer hover:opacity-80 transition-opacity"
+            onCreateEvent={onCreateEvent}
+            className="cursor-pointer"
           />
         </div>
       </div>
