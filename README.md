@@ -1,4 +1,4 @@
-# Telegram Event Pro
+# Telegram Event Point
 
 Telegram моно-приложение для просмотра и регистрации на мероприятия.
 

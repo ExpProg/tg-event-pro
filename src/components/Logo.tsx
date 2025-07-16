@@ -33,7 +33,7 @@ const Logo: React.FC<LogoProps> = ({
       {showText && (
         <div className={`font-bold text-foreground ${textSizeClasses[size]}`}>
           <span className="text-primary">Event</span>
-          <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">Pro</span>
+          <span className="bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"> Point</span>
         </div>
       )}
     </div>
