@@ -10,6 +10,7 @@ export interface Event {
   price?: number;
   category: EventCategory;
   organizer: string;
+  creatorId?: number; // Telegram user ID создателя мероприятия
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
