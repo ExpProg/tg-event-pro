@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Header from './components/Header';
 import EventList from './components/EventList';
+import CreateEventForm from './components/CreateEventForm';
 import { useTelegram } from './hooks/useTelegram';
 
 type Page = 'events' | 'create-event';
@@ -8,6 +9,7 @@ type Page = 'events' | 'create-event';
 function App() {
   const { isReady } = useTelegram();
   const [currentPage, setCurrentPage] = useState<Page>('events');
+  const [eventListKey, setEventListKey] = useState(0); // Ключ для принудительного обновления списка
 
   const handleCreateEvent = () => {
     setCurrentPage('create-event');
@@ -28,6 +30,14 @@ function App() {
     );
   }
 
+  const handleEventCreated = (eventId: string) => {
+    console.log('Мероприятие создано с ID:', eventId);
+    // Увеличиваем ключ для принудительного обновления списка мероприятий
+    setEventListKey(prev => prev + 1);
+    // Возвращаемся к списку мероприятий после успешного создания
+    setCurrentPage('events');
+  };
+
   const renderContent = () => {
     switch (currentPage) {
       case 'create-event':
@@ -36,20 +46,22 @@ function App() {
             <div className="mb-6">
               <button
                 onClick={handleBackToEvents}
-                className="text-primary hover:underline mb-4"
+                className="text-primary hover:underline mb-4 inline-flex items-center"
               >
                 ← Назад к мероприятиям
               </button>
-              <h1 className="text-2xl font-bold">Создать мероприятие</h1>
             </div>
-            <div className="max-w-2xl">
-              <p className="text-muted-foreground">Форма создания мероприятия будет здесь</p>
+            <div className="flex justify-center">
+              <CreateEventForm 
+                onSuccess={handleEventCreated}
+                onCancel={handleBackToEvents}
+              />
             </div>
           </div>
         );
       case 'events':
       default:
-        return <EventList />;
+        return <EventList key={eventListKey} />;
     }
   };
 
