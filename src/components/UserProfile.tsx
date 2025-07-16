@@ -70,16 +70,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
       </Avatar>
       
       {showName && (
-        <div className="flex flex-col">
-          <span className={`font-medium text-foreground ${textSizeClass[size]}`}>
-            {getDisplayName()}
-          </span>
-          {user.username && (
-            <span className="text-xs text-muted-foreground">
-              @{user.username}
-            </span>
-          )}
-        </div>
+        <span className={`font-medium text-foreground ${textSizeClass[size]}`}>
+          {getDisplayName()}
+        </span>
       )}
     </div>
   );
