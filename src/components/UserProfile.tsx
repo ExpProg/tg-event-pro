@@ -71,7 +71,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         
         <DropdownMenuSeparator />
         
-        {user && onCreateEvent && (
+        {onCreateEvent && (
           <DropdownMenuItem onClick={onCreateEvent}>
             <Plus className="mr-2 h-4 w-4" />
             <span>Создать мероприятие</span>

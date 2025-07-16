@@ -26,6 +26,7 @@ interface FormData {
   price: string;
   image: string;
   organizer: string;
+  contactInfo: string;
 }
 
 const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }) => {
@@ -42,6 +43,7 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
     price: '',
     image: '',
     organizer: user ? `${user.first_name} ${user.last_name || ''}`.trim() : '',
+    contactInfo: user ? '' : '', // Для неавторизованных пользователей может понадобиться контактная информация
   });
 
   const [loading, setLoading] = useState(false);
@@ -88,6 +90,11 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
       newErrors.organizer = 'Организатор обязателен';
     }
 
+    // Для неавторизованных пользователей обязательна контактная информация
+    if (!user && !formData.contactInfo.trim()) {
+      newErrors.contactInfo = 'Контактная информация обязательна для неавторизованных пользователей';
+    }
+
     // Проверка даты на будущее время
     if (formData.date && formData.time) {
       const eventDateTime = new Date(`${formData.date}T${formData.time}`);
@@ -124,11 +131,6 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!user) {
-      alert('Необходима авторизация');
-      return;
-    }
 
     if (!validateForm()) {
       return;
@@ -147,7 +149,8 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
         location: formData.location.trim(),
         category: formData.category as EventCategory,
         organizer: formData.organizer.trim(),
-        creatorId: user.id,
+        creatorId: user?.id, // undefined для неавторизованных пользователей
+        contactInfo: formData.contactInfo.trim() || undefined, // Контактная информация
         currentParticipants: 0,
         isActive: true,
         maxParticipants: formData.maxParticipants ? Number(formData.maxParticipants) : undefined,
@@ -343,6 +346,24 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
               placeholder="https://example.com/image.jpg"
             />
           </div>
+
+          {/* Контактная информация для неавторизованных пользователей */}
+          {!user && (
+            <div className="space-y-2">
+              <Label htmlFor="contactInfo">Контактная информация *</Label>
+              <Input
+                id="contactInfo"
+                value={formData.contactInfo}
+                onChange={(e) => handleInputChange('contactInfo', e.target.value)}
+                placeholder="Email, телефон или Telegram для связи"
+                className={errors.contactInfo ? 'border-red-500' : ''}
+              />
+              {errors.contactInfo && <p className="text-sm text-red-500">{errors.contactInfo}</p>}
+              <p className="text-xs text-muted-foreground">
+                Укажите, как с вами можно связаться по поводу мероприятия
+              </p>
+            </div>
+          )}
 
           {/* Кнопки */}
           <div className="flex gap-3 pt-4">

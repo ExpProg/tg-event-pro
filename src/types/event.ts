@@ -11,6 +11,7 @@ export interface Event {
   category: EventCategory;
   organizer: string;
   creatorId?: number; // Telegram user ID создателя мероприятия
+  contactInfo?: string; // Контактная информация для неавторизованных создателей
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
