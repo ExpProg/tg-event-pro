@@ -1,3 +1,4 @@
+import Header from './components/Header';
 import EventList from './components/EventList';
 import { useTelegram } from './hooks/useTelegram';
 
@@ -17,6 +18,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <EventList />
     </div>
   );

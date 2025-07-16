@@ -167,17 +167,12 @@ const EventList: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <main className="container mx-auto px-4 py-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-center mb-2">Мероприятия</h1>
         <p className="text-muted-foreground text-center">
           Найдите интересные события и мероприятия
         </p>
-        {user && (
-          <p className="text-sm text-muted-foreground text-center mt-2">
-            Добро пожаловать, {user.first_name}!
-          </p>
-        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -191,7 +186,7 @@ const EventList: React.FC = () => {
           />
         ))}
       </div>
-    </div>
+    </main>
   );
 };
 
