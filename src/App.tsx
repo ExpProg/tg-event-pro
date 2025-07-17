@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Header from './components/Header';
 import EventList from './components/EventList';
 import CreateEventForm from './components/CreateEventForm';
+import AdminPanel from './components/AdminPanel';
 import { useTelegram } from './hooks/useTelegram';
 
 type Page = 'events' | 'create-event' | 'admin';
@@ -74,15 +75,11 @@ function App() {
                 ← Назад к мероприятиям
               </button>
               <h1 className="text-2xl font-bold">Панель администратора</h1>
+              <p className="text-muted-foreground mt-1">
+                Управление пользователями и ролями системы
+              </p>
             </div>
-            <div className="space-y-6">
-              <div className="bg-card rounded-lg p-6 border">
-                <h2 className="text-lg font-semibold mb-4">Управление мероприятиями</h2>
-                <p className="text-muted-foreground">
-                  Здесь будут инструменты для администрирования мероприятий...
-                </p>
-              </div>
-            </div>
+            <AdminPanel />
           </div>
         );
       case 'events':
