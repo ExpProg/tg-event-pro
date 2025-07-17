@@ -57,16 +57,9 @@ const UserProfile: React.FC<UserProfileProps> = ({
       
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {getDisplayName()}
-            </p>
-            {user?.username && (
-              <p className="text-xs leading-none text-muted-foreground">
-                @{user.username}
-              </p>
-            )}
-          </div>
+          <p className="text-sm font-medium leading-none">
+            {getDisplayName()}
+          </p>
         </DropdownMenuLabel>
         
         <DropdownMenuSeparator />
