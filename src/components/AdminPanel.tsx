@@ -147,9 +147,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
               {users.map((user) => (
                 <div 
                   key={user.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
+                  className="p-3 border rounded-lg space-y-3"
                 >
-                  <div className="flex-1">
+                  <div>
                     <div className="flex items-center space-x-2">
                       <span className="font-medium">ID: {user.telegramId}</span>
                       <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
@@ -167,7 +167,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
                     </div>
                   </div>
                   
-                  <div className="flex space-x-2">
+                  <div className="pt-2 border-t">
                     {user.role === 'admin' ? (
                       <Button
                         variant="outline"
