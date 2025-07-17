@@ -81,7 +81,15 @@ export const eventService = {
         updatedAt: now,
       };
       
-      const docRef = await addDoc(collection(db, EVENTS_COLLECTION), eventConverter.toFirestore(event as Event));
+      // Убираем undefined значения для Firebase
+      const cleanedEvent = { ...event };
+      Object.keys(cleanedEvent).forEach(key => {
+        if ((cleanedEvent as any)[key] === undefined) {
+          delete (cleanedEvent as any)[key];
+        }
+      });
+      
+      const docRef = await addDoc(collection(db, EVENTS_COLLECTION), eventConverter.toFirestore(cleanedEvent as Event));
       return docRef.id;
     } catch (error) {
       console.error('Error creating event:', error);
