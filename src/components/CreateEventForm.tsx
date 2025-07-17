@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Event } from '@/types/event';
 import { eventService } from '@/services/eventService';
 import { useTelegram } from '@/hooks/useTelegram';
-import { Calendar, MapPin, Users, DollarSign, Image, Plus } from 'lucide-react';
+import { Calendar, Plus } from 'lucide-react';
 
 interface CreateEventFormProps {
   onSuccess?: (eventId: string) => void;
@@ -20,11 +20,6 @@ interface FormData {
   description: string;
   date: string;
   time: string;
-  location: string;
-  maxParticipants: string;
-  price: string;
-  image: string;
-  organizer: string;
   contactInfo: string;
 }
 
@@ -36,18 +31,11 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
     description: '',
     date: '',
     time: '',
-    location: '',
-    maxParticipants: '',
-    price: '',
-    image: '',
-    organizer: user ? `${user.first_name} ${user.last_name || ''}`.trim() : '',
     contactInfo: user ? '' : '', // Для неавторизованных пользователей может понадобиться контактная информация
   });
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
-
-
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
@@ -68,14 +56,6 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
       newErrors.time = 'Время обязательно';
     }
 
-    if (!formData.location.trim()) {
-      newErrors.location = 'Место проведения обязательно';
-    }
-
-    if (!formData.organizer.trim()) {
-      newErrors.organizer = 'Организатор обязателен';
-    }
-
     // Для неавторизованных пользователей обязательна контактная информация
     if (!user && !formData.contactInfo.trim()) {
       newErrors.contactInfo = 'Контактная информация обязательна для неавторизованных пользователей';
@@ -87,16 +67,6 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
       if (eventDateTime <= new Date()) {
         newErrors.date = 'Дата и время должны быть в будущем';
       }
-    }
-
-    // Проверка максимального количества участников
-    if (formData.maxParticipants && parseInt(formData.maxParticipants) <= 0) {
-      newErrors.maxParticipants = 'Количество участников должно быть больше 0';
-    }
-
-    // Проверка цены
-    if (formData.price && parseFloat(formData.price) < 0) {
-      newErrors.price = 'Цена не может быть отрицательной';
     }
 
     setErrors(newErrors);
@@ -132,15 +102,12 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
         title: formData.title.trim(),
         description: formData.description.trim(),
         date: eventDateTime,
-        location: formData.location.trim(),
-        organizer: formData.organizer.trim(),
+        location: '', // Пустое значение для места проведения
+        organizer: user ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Организатор', // Автоматически из данных пользователя или значение по умолчанию
         creatorId: user?.id, // undefined для неавторизованных пользователей
         contactInfo: formData.contactInfo.trim() || undefined, // Контактная информация
         currentParticipants: 0,
         isActive: true,
-        maxParticipants: formData.maxParticipants ? Number(formData.maxParticipants) : undefined,
-        price: formData.price ? Number(formData.price) : undefined,
-        image: formData.image.trim() || undefined,
       };
 
       const eventId = await eventService.createEvent(eventData);
@@ -228,89 +195,6 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
               />
               {errors.time && <p className="text-sm text-red-500">{errors.time}</p>}
             </div>
-          </div>
-
-          {/* Место проведения */}
-          <div className="space-y-2">
-            <Label htmlFor="location" className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              Место проведения *
-            </Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => handleInputChange('location', e.target.value)}
-              placeholder="Адрес или онлайн-ссылка"
-              className={errors.location ? 'border-red-500' : ''}
-            />
-            {errors.location && <p className="text-sm text-red-500">{errors.location}</p>}
-          </div>
-
-
-
-          {/* Организатор */}
-          <div className="space-y-2">
-            <Label htmlFor="organizer">Организатор *</Label>
-            <Input
-              id="organizer"
-              value={formData.organizer}
-              onChange={(e) => handleInputChange('organizer', e.target.value)}
-              placeholder="Имя организатора или организации"
-              className={errors.organizer ? 'border-red-500' : ''}
-            />
-            {errors.organizer && <p className="text-sm text-red-500">{errors.organizer}</p>}
-          </div>
-
-          {/* Дополнительные поля */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="maxParticipants" className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                Макс. участников
-              </Label>
-              <Input
-                id="maxParticipants"
-                type="number"
-                min="1"
-                value={formData.maxParticipants}
-                onChange={(e) => handleInputChange('maxParticipants', e.target.value)}
-                placeholder="Без ограничений"
-                className={errors.maxParticipants ? 'border-red-500' : ''}
-              />
-              {errors.maxParticipants && <p className="text-sm text-red-500">{errors.maxParticipants}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price" className="flex items-center gap-1">
-                <DollarSign className="h-4 w-4" />
-                Цена (₽)
-              </Label>
-              <Input
-                id="price"
-                type="number"
-                min="0"
-                value={formData.price}
-                onChange={(e) => handleInputChange('price', e.target.value)}
-                placeholder="Бесплатно"
-                className={errors.price ? 'border-red-500' : ''}
-              />
-              {errors.price && <p className="text-sm text-red-500">{errors.price}</p>}
-            </div>
-          </div>
-
-          {/* Изображение */}
-          <div className="space-y-2">
-            <Label htmlFor="image" className="flex items-center gap-1">
-              <Image className="h-4 w-4" />
-              Изображение (URL)
-            </Label>
-            <Input
-              id="image"
-              type="url"
-              value={formData.image}
-              onChange={(e) => handleInputChange('image', e.target.value)}
-              placeholder="https://example.com/image.jpg"
-            />
           </div>
 
           {/* Контактная информация для неавторизованных пользователей */}
