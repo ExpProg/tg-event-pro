@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+
 import { Badge } from '@/components/ui/badge';
 import { FirestoreUser } from '@/types/user';
 import { userService } from '@/services/userService';
@@ -15,7 +14,6 @@ interface AdminPanelProps {
 const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
   const [users, setUsers] = useState<FirestoreUser[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newAdminId, setNewAdminId] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const loadUsers = async () => {
@@ -62,28 +60,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
     }
   };
 
-  const handleAddAdmin = async () => {
-    if (!newAdminId.trim()) return;
-    
-    const telegramId = parseInt(newAdminId.trim());
-    if (isNaN(telegramId)) {
-      alert('Введите корректный Telegram ID (число)');
-      return;
-    }
 
-    setActionLoading('add-admin');
-    try {
-      const success = await userService.promoteToAdmin(telegramId);
-      if (success) {
-        setNewAdminId('');
-        await loadUsers(); // Перезагружаем список
-      }
-    } catch (error) {
-      console.error('Error adding admin:', error);
-    } finally {
-      setActionLoading(null);
-    }
-  };
 
 
 
@@ -148,37 +125,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
         </Card>
       </div>
 
-      {/* Добавление администратора */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Добавить администратора</CardTitle>
-          <CardDescription>
-            Введите Telegram ID пользователя для назначения роли администратора
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex space-x-2">
-            <div className="flex-1">
-              <Label htmlFor="telegram-id">Telegram ID</Label>
-              <Input
-                id="telegram-id"
-                type="number"
-                placeholder="Например: 123456789"
-                value={newAdminId}
-                onChange={(e) => setNewAdminId(e.target.value)}
-              />
-            </div>
-            <Button 
-              onClick={handleAddAdmin}
-              disabled={!newAdminId.trim() || actionLoading === 'add-admin'}
-              className="mt-6"
-            >
-              <Shield className="h-4 w-4 mr-2" />
-              Назначить админом
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Список пользователей */}
       <Card>
