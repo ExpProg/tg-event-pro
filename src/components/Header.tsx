@@ -6,9 +6,10 @@ import { useTelegram } from '@/hooks/useTelegram';
 interface HeaderProps {
   className?: string;
   onCreateEvent?: () => void;
+  onAdminPanel?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ className = '', onCreateEvent }) => {
+const Header: React.FC<HeaderProps> = ({ className = '', onCreateEvent, onAdminPanel }) => {
   const { user } = useTelegram();
 
   return (
@@ -25,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ className = '', onCreateEvent }) => {
             user={user} 
             size="md" 
             onCreateEvent={onCreateEvent}
+            onAdminPanel={onAdminPanel}
             className="cursor-pointer"
           />
         </div>

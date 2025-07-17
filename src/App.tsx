@@ -4,7 +4,7 @@ import EventList from './components/EventList';
 import CreateEventForm from './components/CreateEventForm';
 import { useTelegram } from './hooks/useTelegram';
 
-type Page = 'events' | 'create-event';
+type Page = 'events' | 'create-event' | 'admin';
 
 function App() {
   const { isReady } = useTelegram();
@@ -17,6 +17,10 @@ function App() {
 
   const handleBackToEvents = () => {
     setCurrentPage('events');
+  };
+
+  const handleAdminPanel = () => {
+    setCurrentPage('admin');
   };
 
   if (!isReady) {
@@ -59,6 +63,28 @@ function App() {
             </div>
           </div>
         );
+      case 'admin':
+        return (
+          <div className="container mx-auto px-4 py-6">
+            <div className="mb-6">
+              <button
+                onClick={handleBackToEvents}
+                className="text-primary hover:underline mb-4 inline-flex items-center"
+              >
+                ← Назад к мероприятиям
+              </button>
+              <h1 className="text-2xl font-bold">Панель администратора</h1>
+            </div>
+            <div className="space-y-6">
+              <div className="bg-card rounded-lg p-6 border">
+                <h2 className="text-lg font-semibold mb-4">Управление мероприятиями</h2>
+                <p className="text-muted-foreground">
+                  Здесь будут инструменты для администрирования мероприятий...
+                </p>
+              </div>
+            </div>
+          </div>
+        );
       case 'events':
       default:
         return <EventList key={eventListKey} />;
@@ -67,7 +93,10 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onCreateEvent={handleCreateEvent} />
+      <Header 
+        onCreateEvent={handleCreateEvent} 
+        onAdminPanel={handleAdminPanel}
+      />
       {renderContent()}
     </div>
   );

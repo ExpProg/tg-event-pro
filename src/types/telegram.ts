@@ -1,3 +1,6 @@
+// User role types
+export type UserRole = 'user' | 'admin';
+
 // Telegram Web App types
 export interface TelegramWebApp {
   initData: string;
@@ -74,6 +77,7 @@ export interface TelegramUser {
   language_code?: string;
   is_premium?: boolean;
   photo_url?: string;
+  role?: UserRole; // Роль пользователя: admin или user
 }
 
 export interface TelegramChat {
