@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { FirestoreUser } from '@/types/user';
 import { userService } from '@/services/userService';
-import { Users, Shield, UserX, UserPlus, RefreshCw, ArrowLeft } from 'lucide-react';
+import { Users, Shield, UserX, UserPlus, ArrowLeft } from 'lucide-react';
 
 interface AdminPanelProps {
   onBack: () => void;
@@ -115,26 +115,20 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
+      {/* Навигация */}
+      <div>
+        <Button variant="ghost" size="sm" onClick={onBack}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Назад к мероприятиям
+        </Button>
+      </div>
+
       {/* Заголовок */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Панель администратора</h1>
-            <p className="text-muted-foreground">Управление пользователями и ролями</p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">Управление пользователями и ролями</h1>
         </div>
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            onClick={loadUsers}
-            disabled={loading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Обновить
-          </Button>
+        <div>
           <Button 
             variant="outline" 
             onClick={handleMigrateUsers}
