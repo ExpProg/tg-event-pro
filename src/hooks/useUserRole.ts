@@ -4,7 +4,8 @@ import { TelegramUser, UserRole } from '@/types/telegram';
 // Список ID администраторов (можно вынести в переменные окружения)
 const ADMIN_IDS: number[] = [
   // Добавьте сюда ID администраторов
-  // Например: 123456789, 987654321
+  // Например для Artem Mornev - замените на реальный ID из консоли:
+  // 123456789, // Artem Mornev - замените на реальный ID
 ];
 
 export const useUserRole = (user: TelegramUser | null) => {

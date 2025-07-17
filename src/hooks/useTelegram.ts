@@ -14,7 +14,10 @@ export const useTelegram = () => {
       
       // Получаем данные пользователя
       if (tg.initDataUnsafe?.user) {
-        setUser(tg.initDataUnsafe.user);
+        const userData = tg.initDataUnsafe.user;
+        setUser(userData);
+        // Временно выводим ID в консоль для назначения админа
+        console.log('User ID:', userData.id, 'Name:', userData.first_name, userData.last_name);
       }
 
       // Расширяем приложение на весь экран
