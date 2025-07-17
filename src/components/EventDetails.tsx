@@ -144,8 +144,8 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
   return (
     <div className="container mx-auto p-4 max-w-4xl">
       {/* Навигация */}
-      <div className="mb-6">
-        <Button variant="ghost" onClick={onBack} className="mb-4">
+      <div className="mb-3">
+        <Button variant="ghost" onClick={onBack} className="mb-2">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Назад к мероприятиям
         </Button>
