@@ -112,7 +112,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
 
       {/* Заголовок */}
       <div>
-        <h1 className="text-2xl font-bold">Управление пользователями и ролями</h1>
+        <h1 className="text-2xl font-bold">Панель администратора</h1>
       </div>
 
       {/* Статистика */}
