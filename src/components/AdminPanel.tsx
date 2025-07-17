@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { FirestoreUser } from '@/types/user';
 import { userService } from '@/services/userService';
-import { Users, Shield, UserX, UserPlus, ArrowLeft } from 'lucide-react';
+import { Users, Shield, UserX, ArrowLeft } from 'lucide-react';
 
 interface AdminPanelProps {
   onBack: () => void;
@@ -85,20 +85,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
     }
   };
 
-  const handleMigrateUsers = async () => {
-    setActionLoading('migrate');
-    try {
-      const result = await userService.migrateUsersFromEvents();
-      console.log('Migration result:', result);
-      await loadUsers(); // Перезагружаем список
-      alert(`Миграция завершена. Добавлено: ${result.success}, ошибок: ${result.errors}`);
-    } catch (error) {
-      console.error('Error during migration:', error);
-      alert('Ошибка во время миграции');
-    } finally {
-      setActionLoading(null);
-    }
-  };
+
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('ru-RU', {
@@ -124,20 +111,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
       </div>
 
       {/* Заголовок */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Управление пользователями и ролями</h1>
-        </div>
-        <div>
-          <Button 
-            variant="outline" 
-            onClick={handleMigrateUsers}
-            disabled={actionLoading === 'migrate'}
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Миграция пользователей
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold">Управление пользователями и ролями</h1>
       </div>
 
       {/* Статистика */}
