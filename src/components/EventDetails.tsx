@@ -60,18 +60,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
     }).format(date);
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categories = {
-      conference: 'Конференция',
-      workshop: 'Мастер-класс',
-      meetup: 'Митап',
-      webinar: 'Вебинар',
-      networking: 'Нетворкинг',
-      training: 'Тренинг',
-      other: 'Другое',
-    };
-    return categories[category as keyof typeof categories] || category;
-  };
+
 
   const handleRegister = async () => {
     if (!event) return;
@@ -169,17 +158,14 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
               <CardTitle className="text-2xl md:text-3xl font-bold mb-2">
                 {event.title}
               </CardTitle>
-              <div className="flex items-center gap-2 mb-3">
-                <Badge variant="secondary">
-                  {getCategoryLabel(event.category)}
-                </Badge>
-                {event.price && (
+              {event.price && (
+                <div className="mb-3">
                   <Badge variant="outline" className="text-primary">
                     <DollarSign className="h-3 w-3 mr-1" />
                     {event.price.toLocaleString('ru-RU')} ₽
                   </Badge>
-                )}
-              </div>
+                </div>
+              )}
             </div>
             
             <div className="flex gap-2">

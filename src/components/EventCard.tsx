@@ -33,18 +33,7 @@ const EventCard: React.FC<EventCardProps> = ({
     }).format(date);
   };
 
-  const getCategoryLabel = (category: string) => {
-    const categories = {
-      conference: 'Конференция',
-      workshop: 'Мастер-класс',
-      meetup: 'Митап',
-      webinar: 'Вебинар',
-      networking: 'Нетворкинг',
-      training: 'Тренинг',
-      other: 'Другое',
-    };
-    return categories[category as keyof typeof categories] || category;
-  };
+
 
   const isEventFull = event.maxParticipants ? event.currentParticipants >= event.maxParticipants : false;
   const isEventPast = new Date(event.date) < new Date();
@@ -67,9 +56,6 @@ const EventCard: React.FC<EventCardProps> = ({
             <CardTitle className="text-lg font-semibold line-clamp-2">
               {event.title}
             </CardTitle>
-            <div className="text-xs text-muted-foreground mt-1 px-2 py-1 bg-secondary rounded-full inline-block">
-              {getCategoryLabel(event.category)}
-            </div>
           </div>
         </div>
       </CardHeader>

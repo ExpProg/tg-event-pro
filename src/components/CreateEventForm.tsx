@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Event, EventCategory } from '@/types/event';
+
+import { Event } from '@/types/event';
 import { eventService } from '@/services/eventService';
 import { useTelegram } from '@/hooks/useTelegram';
 import { Calendar, MapPin, Users, DollarSign, Image, Plus } from 'lucide-react';
@@ -21,7 +21,6 @@ interface FormData {
   date: string;
   time: string;
   location: string;
-  category: EventCategory | '';
   maxParticipants: string;
   price: string;
   image: string;
@@ -38,7 +37,6 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
     date: '',
     time: '',
     location: '',
-    category: '',
     maxParticipants: '',
     price: '',
     image: '',
@@ -49,15 +47,7 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
 
-  const categoryOptions: { value: EventCategory; label: string }[] = [
-    { value: 'conference', label: 'Конференция' },
-    { value: 'workshop', label: 'Мастер-класс' },
-    { value: 'meetup', label: 'Митап' },
-    { value: 'webinar', label: 'Вебинар' },
-    { value: 'networking', label: 'Нетворкинг' },
-    { value: 'training', label: 'Тренинг' },
-    { value: 'other', label: 'Другое' },
-  ];
+
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof FormData, string>> = {};
@@ -82,10 +72,6 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
       newErrors.location = 'Место проведения обязательно';
     }
 
-    if (!formData.category) {
-      newErrors.category = 'Категория обязательна';
-    }
-
     if (!formData.organizer.trim()) {
       newErrors.organizer = 'Организатор обязателен';
     }
@@ -99,18 +85,18 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
     if (formData.date && formData.time) {
       const eventDateTime = new Date(`${formData.date}T${formData.time}`);
       if (eventDateTime <= new Date()) {
-        newErrors.date = 'Дата должна быть в будущем';
+        newErrors.date = 'Дата и время должны быть в будущем';
       }
     }
 
     // Проверка максимального количества участников
-    if (formData.maxParticipants && isNaN(Number(formData.maxParticipants))) {
-      newErrors.maxParticipants = 'Введите число';
+    if (formData.maxParticipants && parseInt(formData.maxParticipants) <= 0) {
+      newErrors.maxParticipants = 'Количество участников должно быть больше 0';
     }
 
     // Проверка цены
-    if (formData.price && isNaN(Number(formData.price))) {
-      newErrors.price = 'Введите число';
+    if (formData.price && parseFloat(formData.price) < 0) {
+      newErrors.price = 'Цена не может быть отрицательной';
     }
 
     setErrors(newErrors);
@@ -147,7 +133,6 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
         description: formData.description.trim(),
         date: eventDateTime,
         location: formData.location.trim(),
-        category: formData.category as EventCategory,
         organizer: formData.organizer.trim(),
         creatorId: user?.id, // undefined для неавторизованных пользователей
         contactInfo: formData.contactInfo.trim() || undefined, // Контактная информация
@@ -261,26 +246,7 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
             {errors.location && <p className="text-sm text-red-500">{errors.location}</p>}
           </div>
 
-          {/* Категория */}
-          <div className="space-y-2">
-            <Label htmlFor="category">Категория *</Label>
-            <Select 
-              value={formData.category} 
-              onValueChange={(value) => handleInputChange('category', value)}
-            >
-              <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
-                <SelectValue placeholder="Выберите категорию" />
-              </SelectTrigger>
-              <SelectContent>
-                {categoryOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
-          </div>
+
 
           {/* Организатор */}
           <div className="space-y-2">

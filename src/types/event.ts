@@ -8,7 +8,6 @@ export interface Event {
   maxParticipants?: number;
   currentParticipants: number;
   price?: number;
-  category: EventCategory;
   organizer: string;
   creatorId?: number; // Telegram user ID создателя мероприятия
   contactInfo?: string; // Контактная информация для неавторизованных создателей
@@ -16,15 +15,6 @@ export interface Event {
   createdAt: Date;
   updatedAt: Date;
 }
-
-export type EventCategory = 
-  | 'conference'
-  | 'workshop'
-  | 'meetup'
-  | 'webinar'
-  | 'networking'
-  | 'training'
-  | 'other';
 
 export interface EventParticipant {
   eventId: string;
