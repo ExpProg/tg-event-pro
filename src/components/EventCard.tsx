@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Event } from '@/types/event';
-import { Calendar, MapPin, Users, Clock } from 'lucide-react';
+import { Calendar, MapPin, Users } from 'lucide-react';
 
 interface EventCardProps {
   event: Event;
@@ -82,12 +82,7 @@ const EventCard: React.FC<EventCardProps> = ({
         <div className="space-y-2">
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span>{formatDate(event.date)}</span>
-          </div>
-          
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span>{formatTime(event.date)}</span>
+            <span>{formatDate(event.date)} в {formatTime(event.date)}</span>
           </div>
 
           <div className="flex items-center text-sm text-muted-foreground">

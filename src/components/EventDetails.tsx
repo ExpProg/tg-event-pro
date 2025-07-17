@@ -200,8 +200,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
               <div className="flex items-center text-muted-foreground">
                 <Calendar className="w-5 h-5 mr-3 flex-shrink-0" />
                 <div>
-                  <div className="font-medium text-foreground">{formatDate(event.date)}</div>
-                  <div className="text-sm">{formatTime(event.date)}</div>
+                  <div className="font-medium text-foreground">{formatDate(event.date)} в {formatTime(event.date)}</div>
                 </div>
               </div>
               
