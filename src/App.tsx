@@ -66,21 +66,7 @@ function App() {
         );
       case 'admin':
         return (
-          <div className="container mx-auto px-4 py-6">
-            <div className="mb-6">
-              <button
-                onClick={handleBackToEvents}
-                className="text-primary hover:underline mb-4 inline-flex items-center"
-              >
-                ← Назад к мероприятиям
-              </button>
-              <h1 className="text-2xl font-bold">Панель администратора</h1>
-              <p className="text-muted-foreground mt-1">
-                Управление пользователями и ролями системы
-              </p>
-            </div>
-            <AdminPanel />
-          </div>
+          <AdminPanel onBack={handleBackToEvents} />
         );
       case 'events':
       default:

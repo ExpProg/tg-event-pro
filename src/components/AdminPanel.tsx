@@ -3,18 +3,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { userService } from '@/services/userService';
+import { Badge } from '@/components/ui/badge';
 import { FirestoreUser } from '@/types/user';
-import { UserRole } from '@/types/telegram';
-import { Shield, Users, Database, UserPlus, UserMinus } from 'lucide-react';
+import { userService } from '@/services/userService';
+import { Users, Shield, UserX, UserPlus, RefreshCw, ArrowLeft } from 'lucide-react';
 
-const AdminPanel: React.FC = () => {
+interface AdminPanelProps {
+  onBack: () => void;
+}
+
+const AdminPanel: React.FC<AdminPanelProps> = ({ onBack }) => {
   const [users, setUsers] = useState<FirestoreUser[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [migrationStatus, setMigrationStatus] = useState<string>('');
-  const [newAdminId, setNewAdminId] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [newAdminId, setNewAdminId] = useState('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // Загрузка пользователей
   const loadUsers = async () => {
     setLoading(true);
     try {
@@ -27,51 +30,39 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  // Миграция пользователей из событий
-  const handleMigration = async () => {
-    setLoading(true);
-    setMigrationStatus('Выполняется миграция...');
-    
-    try {
-      const result = await userService.migrateUsersFromEvents();
-      setMigrationStatus(
-        `Миграция завершена! Создано пользователей: ${result.success}, ошибок: ${result.errors}`
-      );
-      
-      // Перезагружаем список пользователей
-      await loadUsers();
-    } catch (error) {
-      setMigrationStatus('Ошибка при выполнении миграции');
-      console.error('Migration error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-  // Изменение роли пользователя
-  const handleRoleChange = async (telegramId: number, newRole: UserRole) => {
+  const handlePromoteToAdmin = async (telegramId: number) => {
+    setActionLoading(`promote-${telegramId}`);
     try {
-      const success = await userService.updateUserRole(telegramId, newRole);
+      const success = await userService.promoteToAdmin(telegramId);
       if (success) {
-        // Обновляем локальный список
-        setUsers(prevUsers => 
-          prevUsers.map(user => 
-            user.telegramId === telegramId 
-              ? { ...user, role: newRole }
-              : user
-          )
-        );
-      } else {
-        alert('Ошибка при изменении роли');
+        await loadUsers(); // Перезагружаем список
       }
     } catch (error) {
-      console.error('Error changing role:', error);
-      alert('Ошибка при изменении роли');
+      console.error('Error promoting user:', error);
+    } finally {
+      setActionLoading(null);
     }
   };
 
-  // Назначить администратора по ID
-  const handlePromoteToAdmin = async () => {
+  const handleDemoteFromAdmin = async (telegramId: number) => {
+    setActionLoading(`demote-${telegramId}`);
+    try {
+      const success = await userService.demoteFromAdmin(telegramId);
+      if (success) {
+        await loadUsers(); // Перезагружаем список
+      }
+    } catch (error) {
+      console.error('Error demoting user:', error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleAddAdmin = async () => {
     if (!newAdminId.trim()) return;
     
     const telegramId = parseInt(newAdminId.trim());
@@ -80,97 +71,141 @@ const AdminPanel: React.FC = () => {
       return;
     }
 
+    setActionLoading('add-admin');
     try {
       const success = await userService.promoteToAdmin(telegramId);
       if (success) {
         setNewAdminId('');
-        await loadUsers();
-        alert('Пользователь назначен администратором');
-      } else {
-        alert('Ошибка при назначении администратора');
+        await loadUsers(); // Перезагружаем список
       }
     } catch (error) {
-      console.error('Error promoting to admin:', error);
-      alert('Ошибка при назначении администратора');
+      console.error('Error adding admin:', error);
+    } finally {
+      setActionLoading(null);
     }
   };
 
-  // Форматирование даты
+  const handleMigrateUsers = async () => {
+    setActionLoading('migrate');
+    try {
+      const result = await userService.migrateUsersFromEvents();
+      console.log('Migration result:', result);
+      await loadUsers(); // Перезагружаем список
+      alert(`Миграция завершена. Добавлено: ${result.success}, ошибок: ${result.errors}`);
+    } catch (error) {
+      console.error('Error during migration:', error);
+      alert('Ошибка во время миграции');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('ru-RU', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit',
+      minute: '2-digit'
     }).format(date);
   };
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  const adminUsers = users.filter(user => user.role === 'admin');
+  const regularUsers = users.filter(user => user.role === 'user');
 
   return (
-    <div className="space-y-6">
-      {/* Миграция пользователей */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
-            Миграция данных
-          </CardTitle>
-          <CardDescription>
-            Создать записи пользователей в Firestore из существующих событий
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <Button 
-              onClick={handleMigration} 
-              disabled={loading}
-              className="w-full sm:w-auto"
-            >
-              {loading ? 'Выполняется...' : 'Запустить миграцию'}
-            </Button>
-            
-            {migrationStatus && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm">{migrationStatus}</p>
-              </div>
-            )}
+    <div className="container mx-auto p-4 space-y-6">
+      {/* Заголовок */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <Button variant="ghost" size="sm" onClick={onBack}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">Панель администратора</h1>
+            <p className="text-muted-foreground">Управление пользователями и ролями</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="flex space-x-2">
+          <Button 
+            variant="outline" 
+            onClick={loadUsers}
+            disabled={loading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Обновить
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleMigrateUsers}
+            disabled={actionLoading === 'migrate'}
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Миграция пользователей
+          </Button>
+        </div>
+      </div>
 
-      {/* Назначение администратора */}
+      {/* Статистика */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Всего пользователей</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{users.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Администраторы</CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{adminUsers.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Обычные пользователи</CardTitle>
+            <UserX className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{regularUsers.length}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Добавление администратора */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserPlus className="h-5 w-5" />
-            Назначить администратора
-          </CardTitle>
+          <CardTitle>Добавить администратора</CardTitle>
           <CardDescription>
-            Добавить права администратора пользователю по Telegram ID
+            Введите Telegram ID пользователя для назначения роли администратора
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
+          <div className="flex space-x-2">
             <div className="flex-1">
-              <Label htmlFor="adminId">Telegram ID</Label>
+              <Label htmlFor="telegram-id">Telegram ID</Label>
               <Input
-                id="adminId"
+                id="telegram-id"
                 type="number"
+                placeholder="Например: 123456789"
                 value={newAdminId}
                 onChange={(e) => setNewAdminId(e.target.value)}
-                placeholder="Введите Telegram ID пользователя"
               />
             </div>
             <Button 
-              onClick={handlePromoteToAdmin}
-              disabled={!newAdminId.trim() || loading}
+              onClick={handleAddAdmin}
+              disabled={!newAdminId.trim() || actionLoading === 'add-admin'}
               className="mt-6"
             >
-              Назначить
+              <Shield className="h-4 w-4 mr-2" />
+              Назначить админом
             </Button>
           </div>
         </CardContent>
@@ -179,79 +214,62 @@ const AdminPanel: React.FC = () => {
       {/* Список пользователей */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Управление пользователями ({users.length})
-          </CardTitle>
+          <CardTitle>Управление пользователями</CardTitle>
           <CardDescription>
-            Список всех пользователей и управление их ролями
+            Список всех пользователей системы. Имена отображаются только для активных пользователей Telegram.
           </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-4">
-              <p className="text-muted-foreground">Загрузка пользователей...</p>
-            </div>
+            <div className="text-center py-4">Загрузка пользователей...</div>
           ) : users.length === 0 ? (
-            <div className="text-center py-4">
-              <p className="text-muted-foreground">Пользователи не найдены</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Запустите миграцию для создания записей пользователей
-              </p>
+            <div className="text-center py-4 text-muted-foreground">
+              Пользователи не найдены
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {users.map((user) => (
                 <div 
-                  key={user.id} 
+                  key={user.id}
                   className="flex items-center justify-between p-3 border rounded-lg"
                 >
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">
-                        {user.firstName} {user.lastName}
-                      </h3>
-                      {user.role === 'admin' && (
-                        <Shield className="h-4 w-4 text-orange-500" />
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium">ID: {user.telegramId}</span>
+                      <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                        {user.role === 'admin' ? 'Администратор' : 'Пользователь'}
+                      </Badge>
+                      {!user.isActive && (
+                        <Badge variant="destructive">Неактивен</Badge>
                       )}
                     </div>
-                    
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      <p>ID: {user.telegramId}</p>
-                      {user.username && <p>@{user.username}</p>}
-                      <p>Создан: {formatDate(user.createdAt)}</p>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      <div>Создан: {formatDate(user.createdAt)}</div>
                       {user.lastLoginAt && (
-                        <p>Последний вход: {formatDate(user.lastLoginAt)}</p>
+                        <div>Последний вход: {formatDate(user.lastLoginAt)}</div>
                       )}
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <span 
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        user.role === 'admin' 
-                          ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' 
-                          : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                      }`}
-                    >
-                      {user.role === 'admin' ? 'Администратор' : 'Пользователь'}
-                    </span>
-                    
+                  <div className="flex space-x-2">
                     {user.role === 'admin' ? (
                       <Button
-                        size="sm"
                         variant="outline"
-                        onClick={() => handleRoleChange(user.telegramId, 'user')}
+                        size="sm"
+                        onClick={() => handleDemoteFromAdmin(user.telegramId)}
+                        disabled={actionLoading === `demote-${user.telegramId}`}
                       >
-                        <UserMinus className="h-4 w-4 mr-1" />
+                        <UserX className="h-4 w-4 mr-2" />
                         Убрать админа
                       </Button>
                     ) : (
                       <Button
+                        variant="outline"
                         size="sm"
-                        onClick={() => handleRoleChange(user.telegramId, 'admin')}
+                        onClick={() => handlePromoteToAdmin(user.telegramId)}
+                        disabled={actionLoading === `promote-${user.telegramId}`}
                       >
-                        <UserPlus className="h-4 w-4 mr-1" />
+                        <Shield className="h-4 w-4 mr-2" />
                         Сделать админом
                       </Button>
                     )}

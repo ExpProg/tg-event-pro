@@ -4,9 +4,6 @@ import { UserRole } from './telegram';
 export interface FirestoreUser {
   id: string; // Document ID = Telegram user ID
   telegramId: number;
-  firstName: string;
-  lastName?: string;
-  username?: string;
   role: UserRole;
   isActive: boolean;
   createdAt: Date;

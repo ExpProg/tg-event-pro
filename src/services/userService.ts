@@ -66,34 +66,23 @@ export const userService = {
       const now = new Date();
       
       if (existingUser) {
-        // Обновляем существующего пользователя
+        // Обновляем только служебные поля (не firstName, lastName, username)
         const updateData: UpdateUserData = {
-          firstName: telegramUser.first_name,
-          lastName: telegramUser.last_name,
-          username: telegramUser.username,
           updatedAt: now,
           lastLoginAt: now,
         };
         
-        // Убираем undefined значения
-        const cleanData = Object.fromEntries(
-          Object.entries(updateData).filter(([_, value]) => value !== undefined)
-        );
-        
-        await updateDoc(userDoc, cleanData);
+        await updateDoc(userDoc, updateData);
         
         return { 
           ...existingUser, 
-          ...cleanData,
+          ...updateData,
           updatedAt: now
         } as FirestoreUser;
       } else {
-        // Создаем нового пользователя
+        // Создаем нового пользователя (без данных имени из Telegram)
         const userData: CreateUserData = {
           telegramId: telegramUser.id,
-          firstName: telegramUser.first_name,
-          lastName: telegramUser.last_name,
-          username: telegramUser.username,
           role: telegramUser.role || 'user', // По умолчанию роль user
           isActive: true,
           lastLoginAt: now,
@@ -193,12 +182,11 @@ export const userService = {
             const existingUser = await getDoc(userDoc);
             
             if (!existingUser.exists()) {
-              // Создаем пользователя с базовой информацией
+              // Создаем пользователя только с служебными полями
               const now = new Date();
               const userData: FirestoreUser = {
                 id: userId,
                 telegramId: eventData.creatorId,
-                firstName: eventData.organizer || 'Неизвестный пользователь',
                 role: 'user', // По умолчанию обычный пользователь
                 isActive: true,
                 createdAt: now,
