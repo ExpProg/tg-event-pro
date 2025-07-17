@@ -4,6 +4,10 @@ import { Event } from '@/types/event';
 import { eventService } from '@/services/eventService';
 import { useTelegram } from '@/hooks/useTelegram';
 
+interface EventListProps {
+  onViewEventDetails?: (eventId: string) => void;
+}
+
 // Демо данные для событий
 const demoEvents: Event[] = [
   {
@@ -82,7 +86,7 @@ const demoEvents: Event[] = [
   },
 ];
 
-const EventList: React.FC = () => {
+const EventList: React.FC<EventListProps> = ({ onViewEventDetails }) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [registeredEvents, setRegisteredEvents] = useState<Set<string>>(new Set());
@@ -140,8 +144,11 @@ const EventList: React.FC = () => {
   };
 
   const handleViewDetails = (eventId: string) => {
-    // TODO: Реализовать просмотр деталей события
-    console.log('Просмотр деталей события:', eventId);
+    if (onViewEventDetails) {
+      onViewEventDetails(eventId);
+    } else {
+      console.log('Просмотр деталей события:', eventId);
+    }
   };
 
   if (loading) {

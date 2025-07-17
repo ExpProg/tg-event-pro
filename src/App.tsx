@@ -3,13 +3,15 @@ import Header from './components/Header';
 import EventList from './components/EventList';
 import CreateEventForm from './components/CreateEventForm';
 import AdminPanel from './components/AdminPanel';
+import EventDetails from './components/EventDetails';
 import { useTelegram } from './hooks/useTelegram';
 
-type Page = 'events' | 'create-event' | 'admin';
+type Page = 'events' | 'create-event' | 'admin' | 'event-details';
 
 function App() {
   const { isReady } = useTelegram();
   const [currentPage, setCurrentPage] = useState<Page>('events');
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [eventListKey, setEventListKey] = useState(0); // Ключ для принудительного обновления списка
 
   const handleCreateEvent = () => {
@@ -22,6 +24,11 @@ function App() {
 
   const handleAdminPanel = () => {
     setCurrentPage('admin');
+  };
+
+  const handleViewEventDetails = (eventId: string) => {
+    setSelectedEventId(eventId);
+    setCurrentPage('event-details');
   };
 
   if (!isReady) {
@@ -68,9 +75,21 @@ function App() {
         return (
           <AdminPanel onBack={handleBackToEvents} />
         );
+      case 'event-details':
+        return (
+          <EventDetails 
+            eventId={selectedEventId} 
+            onBack={handleBackToEvents} 
+          />
+        );
       case 'events':
       default:
-        return <EventList key={eventListKey} />;
+        return (
+          <EventList 
+            key={eventListKey} 
+            onViewEventDetails={handleViewEventDetails}
+          />
+        );
     }
   };
 
