@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Event } from '@/types/event';
-import { Calendar, MapPin, Users } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 interface EventCardProps {
   event: Event;
@@ -33,23 +33,10 @@ const EventCard: React.FC<EventCardProps> = ({
     }).format(date);
   };
 
-
-
-  const isEventFull = event.maxParticipants ? event.currentParticipants >= event.maxParticipants : false;
   const isEventPast = new Date(event.date) < new Date();
 
   return (
     <Card className="w-full max-w-md mx-auto hover:shadow-lg transition-shadow duration-300">
-      {event.image && (
-        <div className="w-full h-48 overflow-hidden rounded-t-lg">
-          <img 
-            src={event.image} 
-            alt={event.title} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
-      
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -70,26 +57,7 @@ const EventCard: React.FC<EventCardProps> = ({
             <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>{formatDate(event.date)} в {formatTime(event.date)}</span>
           </div>
-
-          <div className="flex items-center text-sm text-muted-foreground">
-            <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span className="line-clamp-1">{event.location}</span>
-          </div>
-
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Users className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span>
-              {event.currentParticipants}
-              {event.maxParticipants && ` / ${event.maxParticipants}`} участников
-            </span>
-          </div>
         </div>
-
-        {event.price && (
-          <div className="text-lg font-semibold text-primary">
-            {event.price.toLocaleString('ru-RU')} ₽
-          </div>
-        )}
       </CardContent>
 
       <CardFooter className="pt-2">
@@ -107,15 +75,13 @@ const EventCard: React.FC<EventCardProps> = ({
             <Button
               size="sm"
               onClick={() => onRegister?.(event.id)}
-              disabled={isRegistered || isEventFull}
+              disabled={isRegistered}
               className="flex-1"
               variant={isRegistered ? "secondary" : "default"}
             >
               {isRegistered 
                 ? "Записан" 
-                : isEventFull 
-                  ? "Мест нет" 
-                  : "Записаться"
+                : "Записаться"
               }
             </Button>
           )}

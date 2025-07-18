@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Event } from '@/types/event';
 import { eventService } from '@/services/eventService';
 import { useTelegram } from '@/hooks/useTelegram';
 import { 
   Calendar, 
-  MapPin, 
-  Users, 
   ArrowLeft, 
   Share2, 
   Heart,
-  DollarSign,
   Building,
   Mail
 } from 'lucide-react';
@@ -60,8 +56,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
     }).format(date);
   };
 
-
-
   const handleRegister = async () => {
     if (!event) return;
     
@@ -108,7 +102,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
         </div>
       </div>
     );
-  }
+  };
 
   if (!event) {
     return (
@@ -127,7 +121,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
     );
   }
 
-  const isEventFull = event.maxParticipants ? event.currentParticipants >= event.maxParticipants : false;
   const isEventPast = new Date(event.date) < new Date();
 
   return (
@@ -142,30 +135,12 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
 
       {/* Главная карточка мероприятия */}
       <Card className="mb-6">
-        {event.image && (
-          <div className="w-full h-64 md:h-80 overflow-hidden rounded-t-lg">
-            <img 
-              src={event.image} 
-              alt={event.title} 
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex-1">
               <CardTitle className="text-2xl md:text-3xl font-bold mb-2">
                 {event.title}
               </CardTitle>
-              {event.price && (
-                <div className="mb-3">
-                  <Badge variant="outline" className="text-primary">
-                    <DollarSign className="h-3 w-3 mr-1" />
-                    {event.price.toLocaleString('ru-RU')} ₽
-                  </Badge>
-                </div>
-              )}
             </div>
             
             <div className="flex gap-2">
@@ -189,29 +164,9 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
                   <div className="font-medium text-foreground">{formatDate(event.date)} в {formatTime(event.date)}</div>
                 </div>
               </div>
-              
-              <div className="flex items-center text-muted-foreground">
-                <MapPin className="w-5 h-5 mr-3 flex-shrink-0" />
-                <div>
-                  <div className="font-medium text-foreground">{event.location}</div>
-                </div>
-              </div>
             </div>
 
             <div className="space-y-3">
-              <div className="flex items-center text-muted-foreground">
-                <Users className="w-5 h-5 mr-3 flex-shrink-0" />
-                <div>
-                  <div className="font-medium text-foreground">
-                    {event.currentParticipants}
-                    {event.maxParticipants && ` / ${event.maxParticipants}`} участников
-                  </div>
-                  {isEventFull && (
-                    <div className="text-sm text-destructive">Мест нет</div>
-                  )}
-                </div>
-              </div>
-              
               <div className="flex items-center text-muted-foreground">
                 <Building className="w-5 h-5 mr-3 flex-shrink-0" />
                 <div>
@@ -248,16 +203,14 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
               <Button
                 onClick={handleRegister}
-                disabled={isRegistered || isEventFull}
+                disabled={isRegistered}
                 className="flex-1"
                 size="lg"
                 variant={isRegistered ? "secondary" : "default"}
               >
                 {isRegistered 
                   ? "✓ Вы записаны" 
-                  : isEventFull 
-                    ? "Мест нет" 
-                    : "Записаться на мероприятие"
+                  : "Записаться на мероприятие"
                 }
               </Button>
               
