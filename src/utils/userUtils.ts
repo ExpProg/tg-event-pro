@@ -55,15 +55,24 @@ export const formatUserName = (user: TelegramUser): string => {
  */
 export const getUserById = async (userId: number): Promise<TelegramUser | null> => {
   try {
+    console.log('getUserById called with userId:', userId, typeof userId);
+    
     // Сначала проверяем, это ли текущий пользователь
     if (typeof window !== 'undefined' && window.Telegram?.WebApp?.initDataUnsafe?.user?.id === userId) {
+      console.log('Found current user in Telegram WebApp');
       return window.Telegram.WebApp.initDataUnsafe.user;
     }
     
     // Проверяем mock базу пользователей для демо данных
+    console.log('Checking mockUsers for userId:', userId);
+    console.log('Available mockUsers keys:', Object.keys(mockUsers));
+    
     if (mockUsers[userId]) {
+      console.log('Found user in mockUsers:', mockUsers[userId]);
       return mockUsers[userId];
     }
+    
+    console.log('User not found in mockUsers, returning fallback');
     
     // В реальном приложении здесь был бы запрос к серверу или Telegram Bot API
     // Fallback: возвращаем базовую информацию
@@ -83,11 +92,19 @@ export const getUserById = async (userId: number): Promise<TelegramUser | null> 
  * Получает и форматирует имя пользователя по ID
  */
 export const getFormattedUserName = async (userId: number): Promise<string> => {
+  console.log('getFormattedUserName called with userId:', userId);
+  
   const user = await getUserById(userId);
   
+  console.log('getUserById returned:', user);
+  
   if (!user) {
+    console.log('No user found, returning default');
     return 'Неизвестный организатор';
   }
   
-  return formatUserName(user);
+  const formattedName = formatUserName(user);
+  console.log('Formatted name:', formattedName);
+  
+  return formattedName;
 }; 
