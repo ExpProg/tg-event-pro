@@ -5,40 +5,6 @@ interface TelegramUser {
   username?: string;
 }
 
-// Mock база пользователей для демо данных
-const mockUsers: Record<number, TelegramUser> = {
-  123456789: {
-    id: 123456789,
-    first_name: 'Алексей',
-    last_name: 'Морозов',
-    username: 'alex_dev'
-  },
-  987654321: {
-    id: 987654321,
-    first_name: 'Мария',
-    last_name: 'Петрова',
-    username: 'maria_ts'
-  },
-  456789123: {
-    id: 456789123,
-    first_name: 'Дмитрий',
-    last_name: 'Иванов',
-    username: 'dmitry_js'
-  },
-  789123456: {
-    id: 789123456,
-    first_name: 'Елена',
-    last_name: 'Кузнецова',
-    username: 'elena_career'
-  },
-  321654987: {
-    id: 321654987,
-    first_name: 'Андрей',
-    last_name: 'Волков',
-    username: 'andrey_startup'
-  }
-};
-
 /**
  * Форматирует имя пользователя как "Имя Ф."
  */
@@ -50,61 +16,52 @@ export const formatUserName = (user: TelegramUser): string => {
 };
 
 /**
- * Получает данные пользователя по Telegram ID
- * В реальном приложении это должно быть обращение к Telegram API
+ * Получает данные пользователя по Telegram ID через серверный API
  */
 export const getUserById = async (userId: number): Promise<TelegramUser | null> => {
   try {
-    console.log('getUserById called with userId:', userId, typeof userId);
-    
-    // Сначала проверяем, это ли текущий пользователь
+    // Сначала проверяем, это ли текущий пользователь (доступно из WebApp)
     if (typeof window !== 'undefined' && window.Telegram?.WebApp?.initDataUnsafe?.user?.id === userId) {
-      console.log('Found current user in Telegram WebApp');
       return window.Telegram.WebApp.initDataUnsafe.user;
     }
     
-    // Проверяем mock базу пользователей для демо данных
-    console.log('Checking mockUsers for userId:', userId);
-    console.log('Available mockUsers keys:', Object.keys(mockUsers));
-    
-    if (mockUsers[userId]) {
-      console.log('Found user in mockUsers:', mockUsers[userId]);
-      return mockUsers[userId];
+    // Для других пользователей делаем запрос к серверному API
+    const response = await fetch(`/api/users/${userId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // В реальном приложении здесь должен быть токен авторизации
+        'Authorization': `Bearer ${window.Telegram?.WebApp?.initData || ''}`
+      }
+    });
+
+    if (response.ok) {
+      const userData = await response.json();
+      return userData;
     }
     
-    console.log('User not found in mockUsers, returning fallback');
-    
-    // В реальном приложении здесь был бы запрос к серверу или Telegram Bot API
-    // Fallback: возвращаем базовую информацию
-    return {
-      id: userId,
-      first_name: 'Пользователь',
-      last_name: undefined,
-      username: undefined
-    };
   } catch (error) {
-    console.error('Error fetching user data:', error);
-    return null;
+    console.error('Error fetching user data from API:', error);
   }
+
+  // Fallback: возвращаем базовую информацию
+  return {
+    id: userId,
+    first_name: 'Организатор',
+    last_name: undefined,
+    username: undefined
+  };
 };
 
 /**
  * Получает и форматирует имя пользователя по ID
  */
 export const getFormattedUserName = async (userId: number): Promise<string> => {
-  console.log('getFormattedUserName called with userId:', userId);
-  
   const user = await getUserById(userId);
   
-  console.log('getUserById returned:', user);
-  
   if (!user) {
-    console.log('No user found, returning default');
     return 'Неизвестный организатор';
   }
   
-  const formattedName = formatUserName(user);
-  console.log('Formatted name:', formattedName);
-  
-  return formattedName;
+  return formatUserName(user);
 }; 
