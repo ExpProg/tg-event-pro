@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Event } from '@/types/event';
 import { eventService } from '@/services/eventService';
 import { useTelegram } from '@/hooks/useTelegram';
+import { getFormattedUserName } from '@/utils/userUtils';
 import { 
   Calendar, 
   ArrowLeft, 
@@ -22,11 +23,23 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [organizerName, setOrganizerName] = useState<string>('Загрузка...');
   const { user } = useTelegram();
 
   useEffect(() => {
     loadEvent();
   }, [eventId]);
+
+  useEffect(() => {
+    const loadOrganizerName = async () => {
+      if (event?.organizerId) {
+        const name = await getFormattedUserName(event.organizerId);
+        setOrganizerName(name);
+      }
+    };
+
+    loadOrganizerName();
+  }, [event?.organizerId]);
 
   const loadEvent = async () => {
     setLoading(true);
@@ -170,7 +183,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ eventId, onBack }) => {
               <div className="flex items-center text-muted-foreground">
                 <Building className="w-5 h-5 mr-3 flex-shrink-0" />
                 <div>
-                  <div className="font-medium text-foreground">{event.organizer}</div>
+                  <div className="font-medium text-foreground">{organizerName}</div>
                   <div className="text-sm">Организатор</div>
                 </div>
               </div>

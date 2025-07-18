@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Event } from '@/types/event';
-import { Calendar } from 'lucide-react';
+import { Calendar, User } from 'lucide-react';
+import { getFormattedUserName } from '@/utils/userUtils';
 
 interface EventCardProps {
   event: Event;
@@ -17,6 +18,17 @@ const EventCard: React.FC<EventCardProps> = ({
   onRegister, 
   onViewDetails 
 }) => {
+  const [organizerName, setOrganizerName] = useState<string>('Загрузка...');
+
+  useEffect(() => {
+    const loadOrganizerName = async () => {
+      const name = await getFormattedUserName(event.organizerId);
+      setOrganizerName(name);
+    };
+
+    loadOrganizerName();
+  }, [event.organizerId]);
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('ru-RU', {
       weekday: 'short',
@@ -56,6 +68,11 @@ const EventCard: React.FC<EventCardProps> = ({
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>{formatDate(event.date)} в {formatTime(event.date)}</span>
+          </div>
+
+          <div className="flex items-center text-sm text-muted-foreground">
+            <User className="w-4 h-4 mr-2 flex-shrink-0" />
+            <span>{organizerName}</span>
           </div>
         </div>
       </CardContent>

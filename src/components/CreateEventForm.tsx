@@ -88,6 +88,12 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Проверяем что пользователь авторизован, так как organizerId обязательное поле
+    if (!user?.id) {
+      alert('Для создания мероприятий необходима авторизация через Telegram');
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -103,8 +109,7 @@ const CreateEventForm: React.FC<CreateEventFormProps> = ({ onSuccess, onCancel }
         description: formData.description.trim(),
         date: eventDateTime,
         location: '', // Пустое значение для места проведения
-        organizer: user ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Организатор', // Автоматически из данных пользователя или значение по умолчанию
-        creatorId: user?.id, // undefined для неавторизованных пользователей
+        organizerId: user.id, // ID организатора (обязательное поле)
         contactInfo: formData.contactInfo.trim() || undefined, // Контактная информация
         currentParticipants: 0,
         isActive: true,

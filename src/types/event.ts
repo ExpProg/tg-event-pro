@@ -8,8 +8,7 @@ export interface Event {
   maxParticipants?: number;
   currentParticipants: number;
   price?: number;
-  organizer: string;
-  creatorId?: number; // Telegram user ID создателя мероприятия
+  organizerId: number; // Telegram user ID организатора (обязательное поле)
   contactInfo?: string; // Контактная информация для неавторизованных создателей
   isActive: boolean;
   createdAt: Date;
